@@ -1,5 +1,6 @@
-import re
 from typing import List
+
+from nltk.tokenize import sent_tokenize
 
 
 def read_article(filename: str) -> str:
@@ -8,7 +9,7 @@ def read_article(filename: str) -> str:
 
 
 def separate_sentences(article: str) -> List[str]:
-    return [re.sub(r'^[^a-zA-Z]+', '', sentence)+'.' for sentence in re.split(r'[.\n?!]', article) if sentence]
+    return sent_tokenize(article)
 
 
 def save_translated_sentences(sentences: List[str], filename: str) -> None:
