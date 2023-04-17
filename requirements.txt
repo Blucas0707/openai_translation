@@ -6,6 +6,7 @@ certifi==2022.12.7
 charset-normalizer==3.1.0
 frozenlist==1.3.3
 idna==3.4
+medium-api==0.5.1
 multidict==6.0.4
 openai==0.27.2
 python-dotenv==1.0.0
