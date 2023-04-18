@@ -1,42 +1,46 @@
-from medium import Client
+import requests
+from enum import Enum
 
-from settings import MEDIUM_API_TOKEN, MEDIUM_APPLICATION_ID, MEDIUM_APPLICATION_SECRET
+from settings import MEDIUM_API_TOKEN
 
-# Go to http://medium.com/me/applications to get your application_id and application_secret.
-client = Client(application_id=MEDIUM_APPLICATION_ID, application_secret=MEDIUM_APPLICATION_SECRET)
 
-# Build the URL where you can send the user to obtain an authorization code.
-auth_url = client.get_authorization_url(
-    'secretstate',
-    'https://www.google.com/',
-    ['basicProfile', 'publishPost']
-)
+class PublishStatusEnum(Enum):
+    DRAFT = 'draft'
+    PUBLIC = 'public'
+    UNLISTED = 'unlisted'
 
-# (Send the user to the authorization URL to obtain an authorization code.)
 
-# Exchange the authorization code for an access token.
-auth = client.exchange_authorization_code(
-    'f610ee389ea0',
-    'https://www.google.com/',
-)
+class Medium:
+    headers = {
+        'Authorization': f'Bearer {MEDIUM_API_TOKEN}',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Accept-Charset': 'utf-8',
+    }
 
-# The access token is automatically set on the client for you after
-# a successful exchange, but if you already have a token, you can set it
-# directly.
-client.access_token = auth['access_token']
+    def __init__(self):
+        self.id = self.get_user_info_d().get('id')
 
-# Get profile details of the user identified by the access token.
-user = client.get_current_user()
-print('>>>>>> user:', user)
+        if not self.id:
+            raise ValueError('No Medium valid id found.')
 
-# Create a draft post.
-post = client.create_post(
-    user_id=user['id'],
-    title='Title',
-    content='<h2>Title</h2><p>Content</p>',
-    content_format='html',
-    publish_status='draft',
-)
+    def get_user_info_d(self) -> dict:
+        resp = requests.get('https://api.medium.com/v1/me', headers=self.headers)
+        resp_d = resp.json()
+        return resp_d.get('data', {}) if resp.status_code == 200 else dict()
 
-# When your access token expires, use the refresh token to get a new one.
-client.exchange_refresh_token(auth['refresh_token'])
+    def post_article(
+            self,
+            title: str,
+            content: str,
+            publish_status: PublishStatusEnum=PublishStatusEnum.DRAFT,
+    ) -> dict:
+        payload = {
+            'title': title,
+            'contentFormat': 'html',
+            'content': content,
+            'publishStatus': publish_status.value
+        }
+
+        resp = requests.post(f'https://api.medium.com/v1/users/{self.id}/posts', headers=self.headers, json=payload)
+        return resp.json()
