@@ -2,9 +2,11 @@ from typing import List
 
 from nltk.tokenize import sent_tokenize
 
+from settings import TRANSLATION_FILE_FOLDER_PATH
+
 
 def read_article(filename: str) -> str:
-    with open(filename, 'r') as f:
+    with open(f'{TRANSLATION_FILE_FOLDER_PATH}{filename}', 'r') as f:
         return f.read()
 
 
