@@ -1,5 +1,6 @@
-import requests
 from enum import Enum
+
+import requests
 
 from settings import MEDIUM_API_TOKEN
 
@@ -27,20 +28,24 @@ class Medium:
     def get_user_info_d(self) -> dict:
         resp = requests.get('https://api.medium.com/v1/me', headers=self.headers)
         resp_d = resp.json()
-        return resp_d.get('data', {}) if resp.status_code == 200 else dict()
+        return resp_d.get('data', {}) if resp.status_code == 200 else {}
 
     def post_article(
-            self,
-            title: str,
-            content: str,
-            publish_status: PublishStatusEnum=PublishStatusEnum.DRAFT,
+        self,
+        title: str,
+        content: str,
+        publish_status: PublishStatusEnum = PublishStatusEnum.DRAFT,
     ) -> dict:
         payload = {
             'title': title,
             'contentFormat': 'html',
             'content': content,
-            'publishStatus': publish_status.value
+            'publishStatus': publish_status.value,
         }
 
-        resp = requests.post(f'https://api.medium.com/v1/users/{self.id}/posts', headers=self.headers, json=payload)
+        resp = requests.post(
+            f'https://api.medium.com/v1/users/{self.id}/posts',
+            headers=self.headers,
+            json=payload,
+        )
         return resp.json()

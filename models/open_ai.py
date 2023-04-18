@@ -38,7 +38,7 @@ def translate_sentences(sentences: List[str]) -> List[str]:
                     'content': prompt,
                 },
                 {'role': 'user', 'content': sentence},
-            ]
+            ],
         )
         # Extract the translated sentence from the response
         translation = resp.choices[0].message['content'].strip()
